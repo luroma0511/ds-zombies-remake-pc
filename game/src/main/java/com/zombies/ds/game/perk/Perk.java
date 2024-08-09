@@ -1,5 +1,6 @@
 package com.zombies.ds.game.perk;
 
+import com.jme3.renderer.Camera;
 import com.zombies.ds.game.entity.Entity;
 import com.zombies.ds.game.functional.Functions;
 import com.zombies.ds.game.player.Player;
@@ -58,10 +59,10 @@ public abstract class Perk {
         return delay;
     }
 
-    public void interact(Entity machine, Player player, float entityRadius){
-        if (!equipped && Functions.interact(machine, player, entityRadius)){
-            if (cost() == 0 || player.getPoints() < cost()) return;
-            equip();
-        }
-    }
+//    public void interact(Entity machine, Camera camera, Player player, float entityRadius){
+//        if (!equipped && Functions.interact(machine, camera, player, entityRadius)){
+//            if (cost() == 0 || player.getPoints() < cost()) return;
+//            equip();
+//        }
+//    }
 }

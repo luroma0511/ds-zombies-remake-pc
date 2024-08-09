@@ -3,21 +3,74 @@ package com.zombies.ds.game.input;
 import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
+import com.jme3.input.RawInputListener;
 import com.jme3.input.controls.*;
+import com.jme3.input.event.*;
+import com.jme3.math.Matrix3f;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
 import com.zombies.ds.game.BlackOpsDsRemake;
 import com.zombies.ds.game.player.Player;
 
 import java.util.*;
 
-public class Input implements ActionListener, AnalogListener {
+public class Input implements ActionListener {
     private final BlackOpsDsRemake app;
     private final InputManager inputManager;
-    private final Set<String> pressedKeys;
+    private final Map<String, Boolean> pressedKeys;
+    public final float[] mouseAxis = new float[]{0, 0};
+    private final Vector3f initialCameraUp;
 
     public Input(BlackOpsDsRemake app){
         this.app = app;
         inputManager = app.getInputManager();
-        pressedKeys = new HashSet<>();
+        inputManager.addRawInputListener(new RawInputListener() {
+            @Override
+            public void beginInput() {
+
+            }
+
+            @Override
+            public void endInput() {
+
+            }
+
+            @Override
+            public void onJoyAxisEvent(JoyAxisEvent joyAxisEvent) {
+
+            }
+
+            @Override
+            public void onJoyButtonEvent(JoyButtonEvent joyButtonEvent) {
+
+            }
+
+            @Override
+            public void onMouseMotionEvent(MouseMotionEvent mouseMotionEvent) {
+                float dx = (float) mouseMotionEvent.getDX() / 75;
+                float dy = (float) mouseMotionEvent.getDY() / 75;
+
+                mouseAxis[0] = -dx;
+                mouseAxis[1] = -dy;
+            }
+
+            @Override
+            public void onMouseButtonEvent(MouseButtonEvent mouseButtonEvent) {
+
+            }
+
+            @Override
+            public void onKeyEvent(KeyInputEvent keyInputEvent) {
+
+            }
+
+            @Override
+            public void onTouchEvent(TouchEvent touchEvent) {
+
+            }
+        });
+        initialCameraUp = app.getCamera().getUp().clone();
+        pressedKeys = new HashMap<>();
         initialize();
     }
 
@@ -32,7 +85,10 @@ public class Input implements ActionListener, AnalogListener {
         addKeyMapping(mapping, "Down", KeyInput.KEY_DOWN);
         addKeyMapping(mapping, "Left", KeyInput.KEY_LEFT);
         addKeyMapping(mapping, "Right", KeyInput.KEY_RIGHT);
-        addKeyMapping(mapping, "Interact", KeyInput.KEY_F);
+        addKeyMapping(mapping, "Interact", KeyInput.KEY_E);
+        addKeyMapping(mapping, "Crouch", KeyInput.KEY_LCONTROL);
+        addKeyMapping(mapping, "Run", KeyInput.KEY_LSHIFT);
+        addKeyMapping(mapping, "Melee", KeyInput.KEY_F);
 
         addMouseAxisMapping(mapping, "Rotate Left", MouseInput.AXIS_X, true);
         addMouseAxisMapping(mapping, "Rotate Right", MouseInput.AXIS_X, false);
@@ -50,25 +106,28 @@ public class Input implements ActionListener, AnalogListener {
         Player player = app.getAppManager().getGame().player;
 
         if (player != null && app.getAppManager().getState().equals("Game")) {
-            boolean forward = isPressed("Forward");
-            player.upSpeed = player.updateMoveSpeed(player.upSpeed, forward, tpf);
-
-            boolean backward = isPressed("Backward");
-            player.downSpeed = player.updateMoveSpeed(player.downSpeed, backward, tpf);
-
-            boolean strafeLeft = isPressed("Strafe Left");
-            player.leftSpeed = player.updateMoveSpeed(player.leftSpeed, strafeLeft, tpf);
-
-            boolean strafeRight = isPressed("Strafe Right");
-            player.rightSpeed = player.updateMoveSpeed(player.rightSpeed, strafeRight, tpf);
-
-            player.setCoords(player.getX() + (player.rightSpeed - player.leftSpeed) * 0.05f, 0, player.getZ() + (player.downSpeed - player.upSpeed) * 0.05f);
-
-
-
-            player.setInteract(isPressed("Interact"));
+            player.input(app, tpf);
         }
+        pressedKeys.replaceAll((k, v) -> true);
     }
+
+//    public void rotateCamera(float value, String xyz) {
+//        Vector3f axis;
+//        if (xyz.equals("x")) axis = initialCameraUp;
+//        else axis = app.getCamera().getLeft();
+//
+//        Matrix3f mat = new Matrix3f();
+//        mat.fromAngleNormalAxis(value, axis);
+//        Vector3f up = app.getCamera().getUp();
+//        Vector3f left = app.getCamera().getLeft();
+//        Vector3f dir = app.getCamera().getDirection();
+//        mat.mult(up, up);
+//        mat.mult(left, left);
+//        mat.mult(dir, dir);
+//        Quaternion q = app.getCamera().getRotation();
+//        q.fromAxes(left, up, dir);
+//        q.normalizeLocal();
+//    }
 
     public void updateKeyMapping(String name, int key){
         inputManager.deleteMapping(name);
@@ -106,17 +165,20 @@ public class Input implements ActionListener, AnalogListener {
     }
 
     @Override
-    public void onAnalog(String name, float value, float tpf) {
-//        System.out.println(name);
-    }
-
-    @Override
     public void onAction(String name, boolean pressed, float tpf) {
-        if (pressed) pressedKeys.add(name);
+        if (pressed) pressedKeys.put(name, false);
         else pressedKeys.remove(name);
     }
 
+    public boolean isJustPressed(String key){
+        return isPressed(key) && !pressedKeys.get(key);
+    }
+
     public boolean isPressed(String key){
-        return pressedKeys.contains(key);
+        return pressedKeys.containsKey(key);
+    }
+
+    public InputManager getInputManager() {
+        return inputManager;
     }
 }

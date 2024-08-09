@@ -1,13 +1,13 @@
 package com.zombies.ds.game;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.shape.Box;
+import com.jme3.asset.plugins.FileLocator;
 import com.jme3.app.state.AppState;
 import com.zombies.ds.game.input.Input;
+import com.zombies.ds.game.model.EntityManager;
 import com.zombies.ds.game.states.AppManager;
+import com.zombies.ds.game.weapons.Weapon;
+import com.zombies.ds.game.weapons.WeaponHandler;
 
 /**
  * The JMonkeyEngine game entry, you should only do initializations for your game here, game logic is handled by
@@ -29,26 +29,16 @@ public class BlackOpsDsRemake extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        Box b = new Box(1, 1, 1);
-        Geometry geom = new Geometry("Box", b);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setColor("Color", ColorRGBA.Blue);
-        geom.setMaterial(mat);
-
-        Box floor = new Box(4, 0, 4);
-        Geometry floorGeom = new Geometry("Box", floor);
-        floorGeom.setLocalTranslation(0, -1, 0);
-        mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-
-        mat.setColor("Color", ColorRGBA.Red);
-        floorGeom.setMaterial(mat);
-
-        rootNode.attachChild(geom);
-        rootNode.attachChild(floorGeom);
         flyCam.setEnabled(false);
-
         input = new Input(this);
         appManager = new AppManager(this);
+
+        assetManager.registerLocator("./assets", FileLocator.class);
+
+        EntityManager.loadKraftHaus(this);
+        EntityManager.loadCapsule(this);
+
+        WeaponHandler.reset();
     }
 
     @Override
@@ -57,6 +47,8 @@ public class BlackOpsDsRemake extends SimpleApplication {
         appManager.change();
         input.update();
         appManager.update();
+        input.mouseAxis[0] = 0;
+        input.mouseAxis[1] = 0;
     }
 
     public AppManager getAppManager() {

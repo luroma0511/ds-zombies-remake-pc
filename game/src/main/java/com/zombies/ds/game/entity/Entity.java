@@ -1,43 +1,44 @@
 package com.zombies.ds.game.entity;
 
+import com.jme3.math.Matrix3f;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.Camera;
 
 public abstract class Entity {
-    private final Vector3f vector;
+    protected final Quaternion quaternion = new Quaternion();
+    protected final Vector3f initialUp = quaternion.getRotationColumn(1).clone();
 
-    protected Entity() {
-        vector = new Vector3f();
+    public Vector3f movePosition(Vector3f position, Camera camera, float directionValue, float rightValue, float downValue){
+        Vector3f cameraDirection = camera.getDirection();
+        Vector3f cameraRight = camera.getLeft().negate();
+        Vector3f cameraDown = camera.getUp().negate();
+
+        return position
+                .add(cameraDirection.mult(directionValue))
+                .add(cameraRight.mult(rightValue))
+                .add(cameraDown.mult(downValue));
     }
 
-    public Vector3f getVector() {
-        return vector;
+    public void rotate(float value, String xyz) {
+        Vector3f axis;
+        if (xyz.equals("x")) axis = initialUp;
+        else if (xyz.equals("y")) axis = quaternion.getRotationColumn(0);
+        else axis = quaternion.getRotationColumn(2);
+
+        Matrix3f mat = new Matrix3f();
+        mat.fromAngleNormalAxis(value, axis);
+        Vector3f up = quaternion.getRotationColumn(1);
+        Vector3f left = quaternion.getRotationColumn(0);
+        Vector3f dir = quaternion.getRotationColumn(2);
+        mat.mult(up, up);
+        mat.mult(left, left);
+        mat.mult(dir, dir);
+        quaternion.fromAxes(left, up, dir);
+        quaternion.normalizeLocal();
     }
 
-    public void setCoords(float x, float y, float z) {
-        vector.set(x, y, z);
-    }
-
-    public float getX() {
-        return vector.x;
-    }
-
-    public void setX(int x) {
-        vector.x = x;
-    }
-
-    public float getY() {
-        return vector.y;
-    }
-
-    public void setY(int y) {
-        vector.y = y;
-    }
-
-    public float getZ() {
-        return vector.z;
-    }
-
-    public void setZ(int z) {
-        vector.z = z;
+    public Quaternion getQuaternion() {
+        return quaternion;
     }
 }

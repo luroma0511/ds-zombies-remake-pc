@@ -6,7 +6,7 @@ import com.zombies.ds.game.game.Game;
 public class AppManager {
     BlackOpsDsRemake app;
     String state = "Game";
-    String prevState = "Game";
+    String prevState = "";
     private final Game game;
 
     public AppManager(BlackOpsDsRemake app) {
@@ -16,13 +16,15 @@ public class AppManager {
 
     public void change(){
         if (prevState.equals(state)) return;
+        if (state.equals("Game")){
+            app.getInput().getInputManager().setCursorVisible(false);
+        }
         prevState = state;
     }
 
     public void update(){
         if (state.equals("Game")) {
-            app.getCamera().setLocation(app.getAppManager().getGame().player.getVector());
-            game.update(app.getTpf());
+            game.update(app, app.getTpf());
         }
     }
 

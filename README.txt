@@ -1,12 +1,11 @@
-# BlackOpsDsRemake
+# Call of Duty Black Ops DS Zombies Remake
 
-This is the readme for BlackOpsDsRemake, try to keep it up to date with any information future-you will wish past-you
-remembered to write down
+Welcome to the source code of my Black Ops DS Zombies Remake project! This project's objective is to improve the game design of the Black Ops DS Zombies mode as well as add more features to make the game more fun and exciting to play for all Call of Duty Zombies players!
 
 ## Project set up
-This is a gradle project using JMonkey Engine and other java libraries
+This is a gradle project using JMonkeyEngine3 and other java libraries
 
-# Modules : 
+# Modules
 
 Game module `:game` : holds `build.gradle` dependencies for the game code & should hold your code.
 

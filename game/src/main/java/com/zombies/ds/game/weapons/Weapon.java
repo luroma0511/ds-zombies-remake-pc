@@ -1,10 +1,21 @@
 package com.zombies.ds.game.weapons;
 
-public class Weapon {
+import com.jme3.anim.AnimComposer;
+import com.jme3.bullet.animation.DynamicAnimControl;
+import com.jme3.scene.Spatial;
+import com.simsilica.lemur.anim.Animation;
+import com.zombies.ds.game.BlackOpsDsRemake;
+import com.zombies.ds.game.entity.Entity;
+
+public class Weapon extends Entity {
+    private Spatial model;
+    private AnimComposer control;
+
     public final Attachment attachment = new Attachment();
     public final String name;
     public final String enchantedName;
     public boolean enchanted;
+    public final float adsSeconds;
     public final int damage;
     public final float fireRate;
     public final int maxAmmo;
@@ -14,13 +25,27 @@ public class Weapon {
     public int clip;
     public int level;
 
-    public Weapon(String name, String enchantedName, int damage, float fireRate, int maxAmmo, int maxClip){
+    public Weapon(String name, String enchantedName, int damage, float fireRate, float adsSeconds, int maxAmmo, int maxClip){
         this.name = name;
         this.enchantedName = enchantedName;
         this.damage = damage;
         this.fireRate = fireRate;
         this.maxAmmo = maxAmmo;
         this.maxClip = maxClip;
+        this.adsSeconds = adsSeconds;
+    }
+
+    public void init(BlackOpsDsRemake app){
+        model = app.getAssetManager().loadModel("Models/Weapons/" + name + ".obj");
+        control = model.getControl(AnimComposer.class);
+    }
+
+    public void attach(BlackOpsDsRemake app){
+        app.getRootNode().attachChild(model);
+    }
+
+    public void detach(BlackOpsDsRemake app){
+        app.getRootNode().detachChild(model);
     }
 
     public void reset(){
@@ -58,5 +83,9 @@ public class Weapon {
             ammo -= remainder;
             clip += remainder;
         }
+    }
+
+    public Spatial getModel() {
+        return model;
     }
 }
